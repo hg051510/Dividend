@@ -9,8 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import zerobase.dividend.exception.impl.AlreadyExistTickerException;
+import zerobase.dividend.exception.impl.DeletedCompanyException;
 import zerobase.dividend.exception.impl.FailToScrapException;
-import zerobase.dividend.exception.impl.NoCompanyException;
 import zerobase.dividend.model.Company;
 import zerobase.dividend.model.ScrapedResult;
 import zerobase.dividend.persist.CompanyRepository;
@@ -100,8 +100,8 @@ public class CompanyService {
         var company = this.companyRepository.findByTicker(ticker)
                 .orElseThrow(() ->
                 {
-                    log.error(new NoCompanyException().getMessage());
-                    return new NoCompanyException();
+                    log.error(new DeletedCompanyException().getMessage());
+                    return new DeletedCompanyException();
                 });
 
         this.dividendRepository.deleteAllByCompanyId(company.getId());

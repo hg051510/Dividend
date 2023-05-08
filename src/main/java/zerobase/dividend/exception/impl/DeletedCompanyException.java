@@ -3,7 +3,7 @@ package zerobase.dividend.exception.impl;
 import org.springframework.http.HttpStatus;
 import zerobase.dividend.exception.AbstractException;
 
-public class EmptyTickerException extends AbstractException {
+public class DeletedCompanyException extends AbstractException {
     @Override
     public int getStatusCode() {
         return HttpStatus.BAD_REQUEST.value();
@@ -11,6 +11,6 @@ public class EmptyTickerException extends AbstractException {
 
     @Override
     public String getMessage() {
-        return "존재하지 않는 회사 코드입니다";
+        return "이미 삭제했거나 존재하지 않는 회사입니다";
     }
 }
