@@ -48,6 +48,7 @@ public class CompanyService {
         // ticker 기준으로 회사를 스크래핑
         Company company = this.yahooFinanceScraper.scrapCompanyByTicker(ticker);
         if (ObjectUtils.isEmpty(company)) {
+            log.error(new FailToScrapException().getMessage());
             throw new FailToScrapException();
         }
 
@@ -97,10 +98,14 @@ public class CompanyService {
 
     public String deleteCompany(String ticker){
         var company = this.companyRepository.findByTicker(ticker)
-                .orElseThrow(() -> new NoCompanyException());
+                .orElseThrow(() ->
+                {
+                    log.error(new NoCompanyException().getMessage());
+                    return new NoCompanyException();
+                });
 
         this.dividendRepository.deleteAllByCompanyId(company.getId());
-        log.info(company.getId() + " dividend is deleted");
+        log.info(company.getName() + " dividend is deleted");
 
         this.companyRepository.delete(company);
         log.info(company.getName() + " is deleted");

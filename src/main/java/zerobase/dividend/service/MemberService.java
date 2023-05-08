@@ -7,10 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import zerobase.dividend.exception.impl.AlreadyExistUserException;
-import zerobase.dividend.exception.impl.NoUserIdException;
-import zerobase.dividend.exception.impl.NoUsernameException;
-import zerobase.dividend.exception.impl.NotMatchPasswordException;
+import zerobase.dividend.exception.impl.*;
 import zerobase.dividend.model.Auth;
 import zerobase.dividend.model.MemberEntity;
 import zerobase.dividend.persist.MemberRepository;
@@ -33,19 +30,25 @@ public class MemberService implements UserDetailsService {
     public MemberEntity register(Auth.SignUp member) {
         boolean exists = this.memberRepository.existsByUsername(member.getUsername());
         if (exists) {
-            throw new AlreadyExistUserException();
+            log.error(new AlreadyExistUserException().getMessage());
+            throw new AlreadyExistTickerException();
         }
 
         member.setPassword(this.passwordEncoder.encode(member.getPassword()));
         var result = this.memberRepository.save(member.toEntity());
+        log.info("insert new member -> " + member.getUsername());
         return result;
     }
 
     public MemberEntity authenticate(Auth.SignIn member) {
         var user = this.memberRepository.findByUsername(member.getUsername())
-                .orElseThrow(() -> new NoUserIdException());
+                .orElseThrow(() -> {
+                    log.error(new NoUserIdException().getMessage());
+                    return new NoUserIdException();
+                });
 
         if (!this.passwordEncoder.matches(member.getPassword(), user.getPassword())) {
+            log.error(new NotMatchPasswordException().getMessage());
             throw new NotMatchPasswordException();
         }
 
